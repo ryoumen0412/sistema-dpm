@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}{{ "Editar Actividad" if action == "editar" else "Nueva Actividad" }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt"></i>
+                    {{ "Editar Actividad" if action == "editar" else "Nueva Actividad" }}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form method="post" action="{{ '/actividades/' + actividad.act_id|string + '/editar' if action == 'editar' else '/actividades/crear' }}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="act_nombre" class="form-label">Nombre de la Actividad <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="act_nombre" name="act_nombre" 
+                                       value="{{ actividad.act_nombre if actividad else '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="act_tipo" class="form-label">Tipo</label>
+                                <select class="form-control" id="act_tipo" name="act_tipo">
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="Recreativa" {{ 'selected' if actividad and actividad.act_tipo == 'Recreativa' else '' }}>Recreativa</option>
+                                    <option value="Deportiva" {{ 'selected' if actividad and actividad.act_tipo == 'Deportiva' else '' }}>Deportiva</option>
+                                    <option value="Cultural" {{ 'selected' if actividad and actividad.act_tipo == 'Cultural' else '' }}>Cultural</option>
+                                    <option value="Educativa" {{ 'selected' if actividad and actividad.act_tipo == 'Educativa' else '' }}>Educativa</option>
+                                    <option value="Social" {{ 'selected' if actividad and actividad.act_tipo == 'Social' else '' }}>Social</option>
+                                    <option value="Religiosa" {{ 'selected' if actividad and actividad.act_tipo == 'Religiosa' else '' }}>Religiosa</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="act_descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="act_descripcion" name="act_descripcion" 
+                                          rows="3">{{ actividad.act_descripcion if actividad else '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="act_fecha" class="form-label">Fecha</label>
+                                <input type="date" class="form-control" id="act_fecha" name="act_fecha" 
+                                       value="{{ actividad.act_fecha.strftime('%Y-%m-%d') if actividad and actividad.act_fecha else '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="act_lugar" class="form-label">Lugar</label>
+                                <input type="text" class="form-control" id="act_lugar" name="act_lugar" 
+                                       value="{{ actividad.act_lugar if actividad else '' }}" 
+                                       placeholder="Ej: Centro Comunitario, Plaza, etc.">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="/actividades/" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> 
+                            {{ "Actualizar Actividad" if action == "editar" else "Crear Actividad" }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

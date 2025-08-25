@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Búsqueda Avanzada - Sistema Municipal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-search"></i> Búsqueda Avanzada</h1>
+</div>
+
+<!-- Formulario de búsqueda avanzada -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6><i class="bi bi-funnel-fill"></i> Criterios de Búsqueda</h6>
+    </div>
+    <div class="card-body">
+        <form method="get" action="/reportes/busqueda-avanzada">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="mb-3">Datos Personales</h6>
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" 
+                               value="{{ request.query_params.get('nombre', '') }}" 
+                               placeholder="Buscar por nombre">
+                    </div>
+                    <div class="mb-3">
+                        <label for="apellido" class="form-label">Apellido</label>
+                        <input type="text" class="form-control" id="apellido" name="apellido" 
+                               value="{{ request.query_params.get('apellido', '') }}" 
+                               placeholder="Buscar por apellido">
+                    </div>
+                    <div class="mb-3">
+                        <label for="rut" class="form-label">RUT</label>
+                        <input type="text" class="form-control" id="rut" name="rut" 
+                               value="{{ request.query_params.get('rut', '') }}" 
+                               placeholder="12345678-9">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="edad_min" class="form-label">Edad Mínima</label>
+                            <input type="number" class="form-control" id="edad_min" name="edad_min" 
+                                   value="{{ request.query_params.get('edad_min', '') }}" 
+                                   min="0" max="120">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edad_max" class="form-label">Edad Máxima</label>
+                            <input type="number" class="form-control" id="edad_max" name="edad_max" 
+                                   value="{{ request.query_params.get('edad_max', '') }}" 
+                                   min="0" max="120">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h6 class="mb-3">Ubicación y Categorización</h6>
+                    <div class="mb-3">
+                        <label for="genero_id" class="form-label">Género</label>
+                        <select class="form-select" id="genero_id" name="genero_id">
+                            <option value="">Todos los géneros</option>
+                            {% for genero in generos %}
+                            <option value="{{ genero.id }}" 
+                                    {% if request.query_params.get('genero_id') == genero.id|string %}selected{% endif %}>
+                                {{ genero.genero }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="macrosector_id" class="form-label">Macrosector</label>
+                        <select class="form-select" id="macrosector_id" name="macrosector_id">
+                            <option value="">Todos los macrosectores</option>
+                            {% for macrosector in macrosectores %}
+                            <option value="{{ macrosector.id }}" 
+                                    {% if request.query_params.get('macrosector_id') == macrosector.id|string %}selected{% endif %}>
+                                {{ macrosector.macrosector }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="unidad_vecinal_id" class="form-label">Unidad Vecinal</label>
+                        <select class="form-select" id="unidad_vecinal_id" name="unidad_vecinal_id">
+                            <option value="">Todas las unidades vecinales</option>
+                            {% for unidad in unidades_vecinales %}
+                            <option value="{{ unidad.id }}" 
+                                    {% if request.query_params.get('unidad_vecinal_id') == unidad.id|string %}selected{% endif %}>
+                                {{ unidad.unidad_vecinal }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-primary me-3">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                    <a href="/reportes/busqueda-avanzada" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Limpiar Filtros
+                    </a>
+                    {% if resultados %}
+                    <a href="/reportes/busqueda-avanzada/exportar" class="btn btn-success ms-3">
+                        <i class="bi bi-download"></i> Exportar Resultados
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Resultados -->
+{% if resultados is defined %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6><i class="bi bi-list-ul"></i> Resultados de la Búsqueda</h6>
+        <span class="badge bg-primary">{{ resultados|length }} resultado(s)</span>
+    </div>
+    <div class="card-body p-0">
+        {% if resultados %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>RUT</th>
+                        <th>Nombre Completo</th>
+                        <th>Edad</th>
+                        <th>Género</th>
+                        <th>Macrosector</th>
+                        <th>Unidad Vecinal</th>
+                        <th>Teléfono</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for persona in resultados %}
+                    <tr>
+                        <td>{{ persona.per_rut }}</td>
+                        <td>{{ persona.per_nombres }} {{ persona.per_apellidos }}</td>
+                        <td>
+                            {% if persona.per_birthdate %}
+                                {{ persona.per_birthdate | age }} años
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ persona.genero.genero if persona.genero else '-' }}</td>
+                        <td>{{ persona.macrosector.macrosector if persona.macrosector else '-' }}</td>
+                        <td>{{ persona.unidad_vecinal.unidad_vecinal if persona.unidad_vecinal else '-' }}</td>
+                        <td>{{ persona.per_telefono or '-' }}</td>
+                        <td>
+                            <a href="/personas/{{ persona.id }}" class="btn btn-sm btn-outline-primary" 
+                               title="Ver detalle">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-search text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">No se encontraron personas que coincidan con los criterios de búsqueda.</p>
+            <p class="text-muted">Intente modificar los filtros o ampliar los criterios de búsqueda.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Información de ayuda -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h6><i class="bi bi-info-circle"></i> Ayuda</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Consejos de búsqueda:</h6>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-dot"></i> Use filtros múltiples para refinar los resultados</li>
+                    <li><i class="bi bi-dot"></i> Los rangos de edad son inclusivos</li>
+                    <li><i class="bi bi-dot"></i> Puede exportar los resultados a Excel</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6>Formatos aceptados:</h6>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-dot"></i> RUT: 12345678-9 o 12.345.678-9</li>
+                    <li><i class="bi bi-dot"></i> Nombres: búsqueda parcial permitida</li>
+                    <li><i class="bi bi-dot"></i> Edad: valores entre 0 y 120 años</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

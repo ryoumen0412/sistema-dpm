@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ "Editar Organización" if action == "editar" else "Nueva Organización" }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-building"></i>
+                    {{ "Editar Organización" if action == "editar" else "Nueva Organización" }}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form method="post" action="{{ '/organizaciones/' + organizacion.org_id|string + '/editar' if action == 'editar' else '/organizaciones/crear' }}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="org_nombre" class="form-label">Nombre de la Organización <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="org_nombre" name="org_nombre" 
+                                       value="{{ organizacion.org_nombre if organizacion else '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="org_tipo" class="form-label">Tipo</label>
+                                <select class="form-control" id="org_tipo" name="org_tipo">
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="Junta de Vecinos" {{ 'selected' if organizacion and organizacion.org_tipo == 'Junta de Vecinos' else '' }}>Junta de Vecinos</option>
+                                    <option value="Club de Adulto Mayor" {{ 'selected' if organizacion and organizacion.org_tipo == 'Club de Adulto Mayor' else '' }}>Club de Adulto Mayor</option>
+                                    <option value="Centro Comunitario" {{ 'selected' if organizacion and organizacion.org_tipo == 'Centro Comunitario' else '' }}>Centro Comunitario</option>
+                                    <option value="Cooperativa" {{ 'selected' if organizacion and organizacion.org_tipo == 'Cooperativa' else '' }}>Cooperativa</option>
+                                    <option value="Fundación" {{ 'selected' if organizacion and organizacion.org_tipo == 'Fundación' else '' }}>Fundación</option>
+                                    <option value="Otro" {{ 'selected' if organizacion and organizacion.org_tipo == 'Otro' else '' }}>Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="org_descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="org_descripcion" name="org_descripcion" 
+                                          rows="3">{{ organizacion.org_descripcion if organizacion else '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="org_direccion" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="org_direccion" name="org_direccion" 
+                                       value="{{ organizacion.org_direccion if organizacion else '' }}" 
+                                       placeholder="Dirección completa">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="org_telefono" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="org_telefono" name="org_telefono" 
+                                       value="{{ organizacion.org_telefono if organizacion else '' }}" 
+                                       placeholder="Ej: +56 9 8765 4321">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="org_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="org_email" name="org_email" 
+                                       value="{{ organizacion.org_email if organizacion else '' }}" 
+                                       placeholder="correo@organizacion.cl">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="/organizaciones/" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> 
+                            {{ "Actualizar Organización" if action == "editar" else "Crear Organización" }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

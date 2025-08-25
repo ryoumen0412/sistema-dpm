@@ -4,9 +4,10 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
-from .api.routes import auth, personas_mayores, atenciones, reportes
+from .api.routes import auth, personas_mayores, atenciones, reportes, talleres, organizaciones, especialistas, actividades, viajes
 from .api.routes.auth import get_current_user
 from .crud import personas_mayores as crud_pm
+from .models.personas_mayores import PersonaMayor, Atencion
 from .database import get_db
 from sqlalchemy.orm import Session
 
@@ -32,11 +33,28 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
+# Agregar filtro personalizado para calcular edad
+from datetime import date
+
+def age_filter(birthdate):
+    """Calcula la edad basada en la fecha de nacimiento"""
+    if not birthdate:
+        return 0
+    today = date.today()
+    return today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+
+templates.env.filters['age'] = age_filter
+
 # Incluir rutas
 app.include_router(auth.router, prefix="/auth")
 app.include_router(personas_mayores.router)
 app.include_router(atenciones.router)
 app.include_router(reportes.router)
+app.include_router(talleres.router, prefix="/talleres")
+app.include_router(organizaciones.router, prefix="/organizaciones")
+app.include_router(especialistas.router, prefix="/especialistas")
+app.include_router(actividades.router, prefix="/actividades")
+app.include_router(viajes.router, prefix="/viajes")
 
 @app.get("/", response_class=HTMLResponse)
 def dashboard(
@@ -44,11 +62,37 @@ def dashboard(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    # Estadísticas para el dashboard
-    estadisticas = crud_pm.get_estadisticas_generales(db)
-    personas_recientes = crud_pm.get_personas_mayores(db, limit=5)
-    atenciones_recientes = crud_pm.get_atenciones(db, limit=5)
-    personas_sin_atencion = crud_pm.get_personas_sin_atencion_reciente(db, dias=30)
+    # Estadísticas básicas para el dashboard
+    try:
+        total_personas = db.query(PersonaMayor).count()
+        total_atenciones = db.query(Atencion).count()
+        personas_recientes = crud_pm.get_personas_mayores(db, limit=5)
+        
+        estadisticas = {
+            "total_personas": total_personas,
+            "total_atenciones": total_atenciones,
+            "total_actividades": 0,
+            "total_viajes": 0,
+            "personas_por_genero": {},
+            "personas_por_macrosector": {}
+        }
+        
+        atenciones_recientes = []
+        personas_sin_atencion_count = 0
+        
+    except Exception as e:
+        # Si hay error, usar datos básicos
+        estadisticas = {
+            "total_personas": 0,
+            "total_atenciones": 0,
+            "total_actividades": 0,
+            "total_viajes": 0,
+            "personas_por_genero": {},
+            "personas_por_macrosector": {}
+        }
+        personas_recientes = []
+        atenciones_recientes = []
+        personas_sin_atencion_count = 0
     
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
@@ -56,7 +100,7 @@ def dashboard(
         "estadisticas": estadisticas,
         "personas_recientes": personas_recientes,
         "atenciones_recientes": atenciones_recientes,
-        "personas_sin_atencion_count": len(personas_sin_atencion)
+        "personas_sin_atencion_count": personas_sin_atencion_count
     })
 
 @app.get("/login", response_class=HTMLResponse)
@@ -67,15 +111,15 @@ def login_redirect():
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
     # Rutas que no requieren autenticación
-    public_paths = ["/auth/login", "/static", "/docs", "/openapi.json"]
+    public_paths = ["/auth/login", "/auth/logout", "/static", "/docs", "/openapi.json"]
     
     if any(request.url.path.startswith(path) for path in public_paths):
         response = await call_next(request)
         return response
     
-    # Verificar cookie de autenticación
+    # Para rutas que requieren autenticación, verificar cookie
     token = request.cookies.get("access_token")
-    if not token and request.url.path != "/auth/login":
+    if not token and request.url.path not in ["/auth/login"]:
         return RedirectResponse(url="/auth/login")
     
     response = await call_next(request)

@@ -25,29 +25,33 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    if not credentials:
+def get_current_user_from_cookie(request: Request, db: Session = Depends(get_db)):
+    """Get current user from cookie token"""
+    token = request.cookies.get("access_token")
+    if not token:
         return None
+    
+    if token.startswith("Bearer "):
+        token = token[7:]  # Remove "Bearer " prefix
+    
     try:
-        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             return None
-        return username
+        
+        user = crud_user.get_user_by_username(db, username=username)
+        return user
     except JWTError:
         return None
 
-def get_current_user(db: Session = Depends(get_db), token: str = Depends(verify_token)):
-    if not token:
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    """Get current user, require authentication"""
+    user = get_current_user_from_cookie(request, db)
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="No autenticado"
-        )
-    user = crud_user.get_user_by_username(db, username=token)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario no encontrado"
         )
     return user
 

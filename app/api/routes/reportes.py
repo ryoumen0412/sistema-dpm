@@ -20,20 +20,11 @@ def menu_reportes(
         "request": request
     })
 
-@router.get("/estadisticas", response_class=HTMLResponse)
-def estadisticas_generales(
-    request: Request,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    estadisticas = crud_pm.get_estadisticas_generales(db)
-    personas_resumen = crud_pm.get_personas_con_resumen(db, limit=10)
-    
-    return templates.TemplateResponse("reportes/estadisticas.html", {
-        "request": request,
-        "estadisticas": estadisticas,
-        "personas_resumen": personas_resumen
-    })
+@router.get("/estadisticas-generales", response_model=dict)
+async def estadisticas_generales(db: Session = Depends(get_db)):
+    """Obtener estadísticas generales del sistema"""
+    estadisticas = crud_pm.get_estadistics_generales(db)
+    return estadisticas
 
 @router.get("/personas-sin-atencion", response_class=HTMLResponse)
 def personas_sin_atencion_reciente(

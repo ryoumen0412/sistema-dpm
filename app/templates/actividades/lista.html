@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Actividades{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Gestión de Actividades</h2>
+            <a href="/actividades/crear" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nueva Actividad
+            </a>
+        </div>
+
+        <!-- Búsqueda -->
+        <form method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Buscar actividades por nombre, descripción o tipo..." 
+                           value="{{ search }}">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    {% if search %}
+                    <a href="/actividades/" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+
+        <!-- Resultados -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Actividades registradas ({{ total }} total)</h5>
+            </div>
+            <div class="card-body">
+                {% if actividades %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Tipo</th>
+                                <th>Fecha</th>
+                                <th>Lugar</th>
+                                <th>Descripción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for act in actividades %}
+                            <tr>
+                                <td>{{ act.act_id }}</td>
+                                <td><strong>{{ act.act_nombre }}</strong></td>
+                                <td>
+                                    {% if act.act_tipo %}
+                                    <span class="badge bg-secondary">{{ act.act_tipo }}</span>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>{{ act.act_fecha.strftime('%d/%m/%Y') if act.act_fecha else '-' }}</td>
+                                <td>{{ act.act_lugar or '-' }}</td>
+                                <td>{{ act.act_descripcion or '-' }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="/actividades/{{ act.act_id }}/editar" 
+                                           class="btn btn-outline-primary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" action="/actividades/{{ act.act_id }}/eliminar" 
+                                              style="display: inline;" 
+                                              onsubmit="return confirm('¿Está seguro de eliminar esta actividad?')">
+                                            <button type="submit" class="btn btn-outline-danger" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                    <h5>No hay actividades registradas</h5>
+                    <p class="text-muted">
+                        {% if search %}
+                        No se encontraron actividades que coincidan con "{{ search }}"
+                        {% else %}
+                        Comience agregando una nueva actividad
+                        {% endif %}
+                    </p>
+                    <a href="/actividades/crear" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Crear primera actividad
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

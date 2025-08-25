@@ -16,7 +16,7 @@ def get_persona_mayor(db: Session, persona_id: int):
         joinedload(PersonaMayor.genero),
         joinedload(PersonaMayor.nacionalidad),
         joinedload(PersonaMayor.macrosector),
-        joinedload(PersonaMayor.unidadvecinal)
+        joinedload(PersonaMayor.unidad_vecinal)
     ).filter(PersonaMayor.id == persona_id).first()
 
 def get_persona_mayor_by_rut(db: Session, per_rut: str):
@@ -34,7 +34,7 @@ def get_personas_mayores(
         joinedload(PersonaMayor.genero),
         joinedload(PersonaMayor.nacionalidad),
         joinedload(PersonaMayor.macrosector),
-        joinedload(PersonaMayor.unidadvecinal)
+        joinedload(PersonaMayor.unidad_vecinal)
     )
 
     if search:
@@ -117,13 +117,13 @@ def get_especialidades(db: Session):
 # CRUD para Atenciones
 def get_atencion(db: Session, atencion_id: int):
     return db.query(Atencion).options(
-        joinedload(Atencion.persona),
+        joinedload(Atencion.personas),
         joinedload(Atencion.especialista)
     ).filter(Atencion.id == atencion_id).first()
 
 def get_atenciones(db: Session, skip: int = 0, limit: int = 100, persona_id: Optional[int] = None, especialista_id: Optional[int] = None, fecha_desde: Optional[date] = None, fecha_hasta: Optional[date] =None):
 
-    query = db.query(Atencion).options(joinedload(Atencion.persona), joinedload(Atencion.especialista))
+    query = db.query(Atencion).options(joinedload(Atencion.personas), joinedload(Atencion.especialista))
     if persona_id:
         query = query.filter(Atencion.at_perid == persona_id)
 
@@ -176,7 +176,7 @@ def create_viaje(db: Session, viaje: ViajeCreate):
 
 # Funciones de Estadísticas y Reportes
 def get_estadistics_generales(db: Session):
-    total_personas = db.query(func.count(PersonaMayor).count())
+    total_personas = db.query(PersonaMayor).count()
     total_atenciones = db.query(Atencion).count()
     total_actividades = db.query(Actividad).count()
     total_viajes = db.query(Viaje).count()
@@ -184,12 +184,14 @@ def get_estadistics_generales(db: Session):
     # Personas por género
     personas_por_genero = db.query(
         Genero.genero,
-        func.count(PersonaMayor.id).label('count')).outerjoin(PersonaMayor).group_by(Genero.genero).all()
+        func.count(PersonaMayor.id).label('count')
+    ).outerjoin(PersonaMayor).group_by(Genero.genero).all()
     
     # Personas por macrosector
     personas_por_macrosector = db.query(
         Macrosector.macrosector,
-        func.count(PersonaMayor.id).label('count')).outerjoin(PersonaMayor).group_by(Macrosector.macrosector).all()
+        func.count(PersonaMayor.id).label('count')
+    ).outerjoin(PersonaMayor).group_by(Macrosector.macrosector).all()
     
     return {
         "total_personas": total_personas,
@@ -310,7 +312,7 @@ def get_reporte_atenciones_mensual(db: Session, año: int, mes: int):
         fecha_fin = date(año, mes + 1, 1)
     
     atenciones = db.query(Atencion).options(
-        joinedload(Atencion.persona),
+        joinedload(Atencion.personas),
         joinedload(Atencion.especialista)
     ).filter(
         Atencion.at_fecha >= fecha_inicio,

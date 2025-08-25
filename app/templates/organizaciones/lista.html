@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Organizaciones Comunitarias{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Gestión de Organizaciones Comunitarias</h2>
+            <a href="/organizaciones/crear" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nueva Organización
+            </a>
+        </div>
+
+        <!-- Búsqueda -->
+        <form method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Buscar organizaciones por nombre o descripción..." 
+                           value="{{ search }}">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    {% if search %}
+                    <a href="/organizaciones/" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+
+        <!-- Resultados -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Organizaciones registradas ({{ total }} total)</h5>
+            </div>
+            <div class="card-body">
+                {% if organizaciones %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Tipo</th>
+                                <th>Descripción</th>
+                                <th>Contacto</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for org in organizaciones %}
+                            <tr>
+                                <td>{{ org.org_id }}</td>
+                                <td><strong>{{ org.org_nombre }}</strong></td>
+                                <td>{{ org.org_tipo or '-' }}</td>
+                                <td>{{ org.org_descripcion or '-' }}</td>
+                                <td>
+                                    {% if org.org_telefono %}
+                                        <i class="fas fa-phone"></i> {{ org.org_telefono }}<br>
+                                    {% endif %}
+                                    {% if org.org_email %}
+                                        <i class="fas fa-envelope"></i> {{ org.org_email }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="/organizaciones/{{ org.org_id }}/editar" 
+                                           class="btn btn-outline-primary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" action="/organizaciones/{{ org.org_id }}/eliminar" 
+                                              style="display: inline;" 
+                                              onsubmit="return confirm('¿Está seguro de eliminar esta organización?')">
+                                            <button type="submit" class="btn btn-outline-danger" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                {% if total_pages > 1 %}
+                <nav aria-label="Paginación">
+                    <ul class="pagination justify-content-center">
+                        {% if current_page > 1 %}
+                        <li class="page-item">
+                            <a class="page-link" href="/organizaciones/?page={{ current_page - 1 }}{% if search %}&search={{ search }}{% endif %}">Anterior</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in range(1, total_pages + 1) %}
+                        {% if page_num == current_page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="/organizaciones/?page={{ page_num }}{% if search %}&search={{ search }}{% endif %}">{{ page_num }}</a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% if current_page < total_pages %}
+                        <li class="page-item">
+                            <a class="page-link" href="/organizaciones/?page={{ current_page + 1 }}{% if search %}&search={{ search }}{% endif %}">Siguiente</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                    <h5>No hay organizaciones registradas</h5>
+                    <p class="text-muted">
+                        {% if search %}
+                        No se encontraron organizaciones que coincidan con "{{ search }}"
+                        {% else %}
+                        Comience agregando una nueva organización
+                        {% endif %}
+                    </p>
+                    <a href="/organizaciones/crear" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Crear primera organización
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

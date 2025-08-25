@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Viajes{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Gestión de Viajes</h2>
+            <a href="/viajes/crear" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Viaje
+            </a>
+        </div>
+
+        <!-- Búsqueda -->
+        <form method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Buscar viajes por destino o descripción..." 
+                           value="{{ search }}">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    {% if search %}
+                    <a href="/viajes/" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+
+        <!-- Resultados -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Viajes registrados ({{ total }} total)</h5>
+            </div>
+            <div class="card-body">
+                {% if viajes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Destino</th>
+                                <th>Fechas</th>
+                                <th>Capacidad</th>
+                                <th>Costo</th>
+                                <th>Descripción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for viaje in viajes %}
+                            <tr>
+                                <td>{{ viaje.via_id }}</td>
+                                <td><strong>{{ viaje.via_destino }}</strong></td>
+                                <td>
+                                    {% if viaje.via_fecha_salida %}
+                                    <strong>Salida:</strong> {{ viaje.via_fecha_salida.strftime('%d/%m/%Y') }}<br>
+                                    {% endif %}
+                                    {% if viaje.via_fecha_regreso %}
+                                    <strong>Regreso:</strong> {{ viaje.via_fecha_regreso.strftime('%d/%m/%Y') }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ viaje.via_capacidad or '-' }}</td>
+                                <td>
+                                    {% if viaje.via_costo %}
+                                    ${{ "{:,.0f}".format(viaje.via_costo) }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>{{ viaje.via_descripcion or '-' }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="/viajes/{{ viaje.via_id }}/editar" 
+                                           class="btn btn-outline-primary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" action="/viajes/{{ viaje.via_id }}/eliminar" 
+                                              style="display: inline;" 
+                                              onsubmit="return confirm('¿Está seguro de eliminar este viaje?')">
+                                            <button type="submit" class="btn btn-outline-danger" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-bus fa-3x text-muted mb-3"></i>
+                    <h5>No hay viajes registrados</h5>
+                    <p class="text-muted">
+                        {% if search %}
+                        No se encontraron viajes que coincidan con "{{ search }}"
+                        {% else %}
+                        Comience agregando un nuevo viaje
+                        {% endif %}
+                    </p>
+                    <a href="/viajes/crear" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Crear primer viaje
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

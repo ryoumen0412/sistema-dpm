@@ -17,7 +17,7 @@ class PersonaMayor(Base):
     per_uniid = Column(Integer, ForeignKey("uni_unidadvecinal.id", ondelete="SET NULL"))
     per_benefvinculos = Column(Integer, ForeignKey("vin_vinculos.id", ondelete="SET NULL"))
     per_beneflimpieza = Column(Integer, ForeignKey("lim_limpiezacalef.id", ondelete="SET NULL"))
-    per_benefprogcuidadores = Column(Integer, ForeignKey("prog_progcuidadores", ondelete="SET NULL"))
+    per_benefprogcuidadores = Column(Integer, ForeignKey("pro_progcuidadores.id", ondelete="SET NULL"))
 
     # Relationships
     genero = relationship("Genero", back_populates="personas")
@@ -26,7 +26,7 @@ class PersonaMayor(Base):
     unidad_vecinal = relationship("UnidadVecinal", back_populates="personas")
     beneficio_vinculos = relationship("Vinculo", back_populates="personas")
     beneficio_limpieza = relationship("LimpiezaCalefaccion", back_populates="personas")
-    beneficio_prog_cuidadores = relationship("ProgCuidadores", back_populates="personas")
+    beneficio_prog_cuidadores = relationship("ProgramaCuidadores", back_populates="personas")
 
     # Many-to-many relationships
     atenciones = relationship("Atencion", back_populates="personas")
@@ -70,10 +70,10 @@ class Nacionalidad(Base):
     personas = relationship("PersonaMayor", back_populates="nacionalidad")
 
 class Talleres(Base):
-    __tablename__ = "talleres"
+    __tablename__ = "tal_talleres"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    nombre = Column(String(255), nullable=False)
+    tal_taller = Column(String(255), nullable=False)
 
     personas = relationship("PersonaMayor", secondary="talleres_asist", back_populates="talleres")
 
@@ -101,6 +101,7 @@ class Especialista(Base):
     __tablename__ = "esp_especialistas"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    esp_rut = Column(String(255), unique=True, nullable=False)
     esp_nombre = Column(String(255), nullable=False)
     esp_apellido = Column(String(255), nullable=False)
     esp_espeid = Column(Integer, ForeignKey("espe_especialidades.id", ondelete="SET NULL"))
@@ -145,10 +146,10 @@ class Vinculo(Base):
     personas = relationship("PersonaMayor", back_populates="beneficio_vinculos")
 
 class ProgramaCuidadores(Base):
-    __tablename__ = "prog_progcuidadores"
+    __tablename__ = "pro_progcuidadores"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    prog_procui = Column(String(2))
+    pro_procui = Column(String(2))
 
     personas = relationship("PersonaMayor", back_populates="beneficio_prog_cuidadores")
 
@@ -175,13 +176,13 @@ class ActividadAsistencia(Base):
     __tablename__ = "actividades_asist"
     
     actasist_perid = Column(Integer, ForeignKey("per_mayores.id", ondelete="CASCADE"), primary_key=True)
-    actasist_astid = Column(Integer, ForeignKey("act_actividades.id", ondelete="CASCADE"), primary_key=True)
+    actasist_actid = Column(Integer, ForeignKey("act_actividades.id", ondelete="CASCADE"), primary_key=True)
 
 class TallerAsistencia(Base):
     __tablename__ = "talleres_asist"
     
     talasist_perid = Column(Integer, ForeignKey("per_mayores.id", ondelete="CASCADE"), primary_key=True)
-    talasist_talid = Column(Integer, ForeignKey("talleres.id", ondelete="CASCADE"), primary_key=True)
+    talasist_talid = Column(Integer, ForeignKey("tal_talleres.id", ondelete="CASCADE"), primary_key=True)
 
 class ViajeAsistencia(Base):
     __tablename__ = "viajes_asist"

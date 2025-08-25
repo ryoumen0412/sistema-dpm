@@ -80,13 +80,18 @@
                 </thead>
                 <tbody>
                     {% for persona in personas %}
-                    {% set edad = (persona.per_birthdate | age) %}
                     <tr>
                         <td>{{ persona.per_rut }}</td>
                         <td>
-                            <strong>{{ persona.per_nombre }} {{ persona.per_apellido }}</strong>
+                            <strong>{{ persona.per_nombres }} {{ persona.per_apellidos }}</strong>
                         </td>
-                        <td>{{ edad }} años</td>
+                        <td>
+                            {% if persona.per_birthdate %}
+                                {{ persona.per_birthdate.strftime('%Y-%m-%d') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
                         <td>
                             {% if persona.genero %}
                                 {{ persona.genero.genero }}

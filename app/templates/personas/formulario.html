@@ -35,8 +35,8 @@
                         <label for="per_rut" class="form-label">RUT *</label>
                         <input type="text" class="form-control" id="per_rut" name="per_rut" 
                                value="{% if persona %}{{ persona.per_rut }}{% endif %}" 
-                               placeholder="12.345.678-9" required>
-                        <div class="form-text">Formato: 12.345.678-9</div>
+                               placeholder="12345678-9" required maxlength="10">
+                        <div class="form-text">Formato: 12345678-9</div>
                     </div>
                     
                     <div class="row">
@@ -157,15 +157,14 @@
 <!-- Validación de RUT en JavaScript -->
 <script>
 document.getElementById('per_rut').addEventListener('input', function(e) {
-    let rut = e.target.value.replace(/\D/g, '');
+    let rut = e.target.value.replace(/\D/g, ''); // Remove all non-digits
     if (rut.length > 1) {
+        // Add dash before last digit
         rut = rut.slice(0, -1) + '-' + rut.slice(-1);
     }
-    if (rut.length > 4) {
-        rut = rut.slice(0, -6) + '.' + rut.slice(-6);
-    }
-    if (rut.length > 8) {
-        rut = rut.slice(0, -10) + '.' + rut.slice(-10);
+    // Limit to 9 digits + 1 dash = 10 characters max
+    if (rut.length > 10) {
+        rut = rut.slice(0, 10);
     }
     e.target.value = rut;
 });
