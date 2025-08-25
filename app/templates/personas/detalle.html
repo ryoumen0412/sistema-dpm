@@ -1,0 +1,236 @@
+{% extends "base.html" %} {% block title %}{{ persona.per_nombre }} {{
+persona.per_apellido }} - Sistema Municipal{% endblock %} {% block content %}
+<div
+  class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom"
+>
+  <h1 class="h2">
+    <i class="bi bi-person-circle"></i>
+    {{ persona.per_nombre }} {{ persona.per_apellido }}
+  </h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group me-2">
+      <a
+        href="/personas/{{ persona.id }}/editar"
+        class="btn btn-outline-primary"
+      >
+        <i class="bi bi-pencil"></i> Editar
+      </a>
+      <a
+        href="/atenciones/nueva?persona_id={{ persona.id }}"
+        class="btn btn-outline-success"
+      >
+        <i class="bi bi-heart-pulse"></i> Nueva Atención
+      </a>
+    </div>
+    <a href="/personas/" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> Volver
+    </a>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Información Personal -->
+  <div class="col-md-8">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5><i class="bi bi-person-badge"></i> Información Personal</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <table class="table table-borderless">
+              <tr>
+                <td><strong>RUT:</strong></td>
+                <td>{{ persona.per_rut }}</td>
+              </tr>
+              <tr>
+                <td><strong>Nombre Completo:</strong></td>
+                <td>{{ persona.per_nombre }} {{ persona.per_apellido }}</td>
+              </tr>
+              <tr>
+                <td><strong>Fecha de Nacimiento:</strong></td>
+                <td>{{ persona.per_birthdate.strftime('%d/%m/%Y') }}</td>
+              </tr>
+              <tr>
+                <td><strong>Edad:</strong></td>
+                <td>{{ edad }} años</td>
+              </tr>
+              <tr>
+                <td><strong>Género:</strong></td>
+                <td>
+                  {% if persona.genero %} {{ persona.genero.genero }} {% else %}
+                  <span class="text-muted">No especificado</span>
+                  {% endif %}
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-md-6">
+            <table class="table table-borderless">
+              <tr>
+                <td><strong>Nacionalidad:</strong></td>
+                <td>
+                  {% if persona.nacionalidad %} {{
+                  persona.nacionalidad.nacionalidad }} {% else %}
+                  <span class="text-muted">No especificada</span>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Dirección:</strong></td>
+                <td>
+                  {% if persona.per_direccion %} {{ persona.per_direccion }} {%
+                  else %}
+                  <span class="text-muted">Sin dirección</span>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Macrosector:</strong></td>
+                <td>
+                  {% if persona.macrosector %} {{
+                  persona.macrosector.macrosector }} {% else %}
+                  <span class="text-muted">Sin asignar</span>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Unidad Vecinal:</strong></td>
+                <td>
+                  {% if persona.unidad_vecinal %} {{
+                  persona.unidad_vecinal.unidadvecinal }} {% else %}
+                  <span class="text-muted">Sin asignar</span>
+                  {% endif %}
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Últimas Atenciones -->
+    <div class="card">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h5><i class="bi bi-heart-pulse"></i> Últimas Atenciones</h5>
+        <a
+          href="/atenciones/nueva?persona_id={{ persona.id }}"
+          class="btn btn-sm btn-outline-success"
+        >
+          <i class="bi bi-plus"></i> Nueva
+        </a>
+      </div>
+      <div class="card-body">
+        {% if atenciones %}
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Especialista</th>
+                <th>Especialidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for atencion in atenciones %}
+              <tr>
+                <td>{{ atencion.at_fecha.strftime('%d/%m/%Y') }}</td>
+                <td>
+                  {% if atencion.especialista %} {{
+                  atencion.especialista.esp_nombre }} {{
+                  atencion.especialista.esp_apellido }} {% else %}
+                  <span class="text-muted">Sin especialista</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if atencion.especialista and
+                  atencion.especialista.especialidad %} {{
+                  atencion.especialista.especialidad.espe_especialidad }} {%
+                  else %}
+                  <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="text-center">
+          <a
+            href="/atenciones/?persona_id={{ persona.id }}"
+            class="btn btn-outline-primary btn-sm"
+          >
+            Ver todas las atenciones
+          </a>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+          <p>Esta persona no tiene atenciones registradas</p>
+          <a
+            href="/atenciones/nueva?persona_id={{ persona.id }}"
+            class="btn btn-success"
+          >
+            <i class="bi bi-plus-circle"></i> Registrar primera atención
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel lateral con acciones y resumen -->
+  <div class="col-md-4">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6><i class="bi bi-lightning"></i> Acciones Rápidas</h6>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <a
+            href="/personas/{{ persona.id }}/editar"
+            class="btn btn-outline-primary"
+          >
+            <i class="bi bi-pencil"></i> Editar Información
+          </a>
+          <a
+            href="/atenciones/nueva?persona_id={{ persona.id }}"
+            class="btn btn-outline-success"
+          >
+            <i class="bi bi-heart-pulse"></i> Nueva Atención
+          </a>
+          <a
+            href="/atenciones/?persona_id={{ persona.id }}"
+            class="btn btn-outline-info"
+          >
+            <i class="bi bi-list"></i> Ver Atenciones
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h6><i class="bi bi-bar-chart"></i> Resumen</h6>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>Total Atenciones:</span>
+          <span class="badge bg-primary rounded-pill"
+            >{{ atenciones|length }}</span
+          >
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>Última Atención:</span>
+          <span class="text-muted">
+            {% if atenciones %} {{ atenciones[0].at_fecha.strftime('%d/%m/%Y')
+            }} {% else %} Nunca {% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

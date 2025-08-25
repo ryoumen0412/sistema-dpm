@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if persona %}Editar Persona{% else %}Nueva Persona{% endif %} - Sistema Municipal
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-person"></i>
+        {% if persona %}Editar Persona{% else %}Nueva Persona{% endif %}
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/personas/" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="{{ action }}">
+            <div class="row">
+                <!-- Información Personal -->
+                <div class="col-md-6">
+                    <h5 class="mb-3"><i class="bi bi-person-badge"></i> Información Personal</h5>
+                    
+                    <div class="mb-3">
+                        <label for="per_rut" class="form-label">RUT *</label>
+                        <input type="text" class="form-control" id="per_rut" name="per_rut" 
+                               value="{% if persona %}{{ persona.per_rut }}{% endif %}" 
+                               placeholder="12.345.678-9" required>
+                        <div class="form-text">Formato: 12.345.678-9</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="per_nombre" class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="per_nombre" name="per_nombre" 
+                                       value="{% if persona %}{{ persona.per_nombre }}{% endif %}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="per_apellido" class="form-label">Apellido *</label>
+                                <input type="text" class="form-control" id="per_apellido" name="per_apellido" 
+                                       value="{% if persona %}{{ persona.per_apellido }}{% endif %}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="per_birthdate" class="form-label">Fecha de Nacimiento *</label>
+                        <input type="date" class="form-control" id="per_birthdate" name="per_birthdate" 
+                               value="{% if persona %}{{ persona.per_birthdate }}{% endif %}" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="per_genid" class="form-label">Género</label>
+                                <select class="form-select" id="per_genid" name="per_genid">
+                                    <option value="">Seleccionar género</option>
+                                    {% for genero in generos %}
+                                    <option value="{{ genero.id }}" 
+                                            {% if persona and persona.per_genid == genero.id %}selected{% endif %}>
+                                        {{ genero.genero }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="per_nacid" class="form-label">Nacionalidad</label>
+                                <select class="form-select" id="per_nacid" name="per_nacid">
+                                    <option value="">Seleccionar nacionalidad</option>
+                                    {% for nacionalidad in nacionalidades %}
+                                    <option value="{{ nacionalidad.id }}" 
+                                            {% if persona and persona.per_nacid == nacionalidad.id %}selected{% endif %}>
+                                        {{ nacionalidad.nacionalidad }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Información de Ubicación -->
+                <div class="col-md-6">
+                    <h5 class="mb-3"><i class="bi bi-geo-alt"></i> Información de Ubicación</h5>
+                    
+                    <div class="mb-3">
+                        <label for="per_direccion" class="form-label">Dirección</label>
+                        <textarea class="form-control" id="per_direccion" name="per_direccion" rows="2" 
+                                  placeholder="Ingrese la dirección completa">{% if persona %}{{ persona.per_direccion or '' }}{% endif %}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="per_macid" class="form-label">Macrosector</label>
+                        <select class="form-select" id="per_macid" name="per_macid">
+                            <option value="">Seleccionar macrosector</option>
+                            {% for macrosector in macrosectores %}
+                            <option value="{{ macrosector.id }}" 
+                                    {% if persona and persona.per_macid == macrosector.id %}selected{% endif %}>
+                                {{ macrosector.macrosector }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="per_uniid" class="form-label">Unidad Vecinal</label>
+                        <select class="form-select" id="per_uniid" name="per_uniid">
+                            <option value="">Seleccionar unidad vecinal</option>
+                            {% for unidad in unidades_vecinales %}
+                            <option value="{{ unidad.id }}" 
+                                    {% if persona and persona.per_uniid == unidad.id %}selected{% endif %}>
+                                {{ unidad.unidadvecinal }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Beneficios (simplificado por ahora) -->
+                    <h6 class="mt-4 mb-3"><i class="bi bi-gift"></i> Beneficios</h6>
+                    <div class="form-text mb-3">
+                        Los beneficios se pueden configurar después del registro inicial.
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            
+            <!-- Botones de acción -->
+            <div class="d-flex justify-content-between">
+                <a href="/personas/" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i>
+                    {% if persona %}Actualizar Persona{% else %}Crear Persona{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Validación de RUT en JavaScript -->
+<script>
+document.getElementById('per_rut').addEventListener('input', function(e) {
+    let rut = e.target.value.replace(/\D/g, '');
+    if (rut.length > 1) {
+        rut = rut.slice(0, -1) + '-' + rut.slice(-1);
+    }
+    if (rut.length > 4) {
+        rut = rut.slice(0, -6) + '.' + rut.slice(-6);
+    }
+    if (rut.length > 8) {
+        rut = rut.slice(0, -10) + '.' + rut.slice(-10);
+    }
+    e.target.value = rut;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,240 @@
+{% extends "base.html" %} {% block title %}Dashboard - Sistema Municipal{%
+endblock %} {% block content %}
+<div
+  class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom"
+>
+  <h1 class="h2"><i class="bi bi-speedometer2"></i> Dashboard</h1>
+</div>
+
+<!-- Tarjetas de estadísticas -->
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-white bg-primary">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h5 class="card-title">Personas Registradas</h5>
+            <h2>{{ estadisticas.total_personas }}</h2>
+          </div>
+          <div class="align-self-center">
+            <i class="bi bi-people fs-1"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card text-white bg-success">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h5 class="card-title">Total Atenciones</h5>
+            <h2>{{ estadisticas.total_atenciones }}</h2>
+          </div>
+          <div class="align-self-center">
+            <i class="bi bi-heart-pulse fs-1"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card text-white bg-info">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h5 class="card-title">Actividades</h5>
+            <h2>{{ estadisticas.total_actividades }}</h2>
+          </div>
+          <div class="align-self-center">
+            <i class="bi bi-calendar-event fs-1"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card text-white bg-warning">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h5 class="card-title">Sin Atención (30 días)</h5>
+            <h2>{{ personas_sin_atencion_count }}</h2>
+          </div>
+          <div class="align-self-center">
+            <i class="bi bi-exclamation-triangle fs-1"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Últimas personas registradas -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="bi bi-person-plus"></i> Últimas Personas Registradas</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>RUT</th>
+                <th>Macrosector</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for persona in personas_recientes %}
+              <tr>
+                <td>
+                  <a href="/personas/{{ persona.id }}">
+                    {{ persona.per_nombre }} {{ persona.per_apellido }}
+                  </a>
+                </td>
+                <td>{{ persona.per_rut }}</td>
+                <td>
+                  {% if persona.macrosector %} {{
+                  persona.macrosector.macrosector }} {% else %}
+                  <span class="text-muted">Sin asignar</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="text-center">
+          <a href="/personas/" class="btn btn-outline-primary btn-sm"
+            >Ver todas las personas</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimas atenciones -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="bi bi-heart-pulse"></i> Últimas Atenciones</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Persona</th>
+                <th>Especialista</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for atencion in atenciones_recientes %}
+              <tr>
+                <td>{{ atencion.at_fecha.strftime('%d/%m/%Y') }}</td>
+                <td>
+                  <a href="/personas/{{ atencion.persona.id }}">
+                    {{ atencion.persona.per_nombre }} {{
+                    atencion.persona.per_apellido }}
+                  </a>
+                </td>
+                <td>
+                  {% if atencion.especialista %} {{
+                  atencion.especialista.esp_nombre }} {{
+                  atencion.especialista.esp_apellido }} {% else %}
+                  <span class="text-muted">Sin especialista</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="text-center">
+          <a href="/atenciones/" class="btn btn-outline-success btn-sm"
+            >Ver todas las atenciones</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Distribución por género y macrosector -->
+<div class="row mt-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="bi bi-pie-chart"></i> Distribución por Género</h5>
+      </div>
+      <div class="card-body">
+        {% for genero, count in estadisticas.personas_por_genero.items() %}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>{{ genero or 'Sin especificar' }}</span>
+          <span class="badge bg-primary rounded-pill">{{ count }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="bi bi-geo-alt"></i> Distribución por Macrosector</h5>
+      </div>
+      <div class="card-body">
+        {% for macrosector, count in
+        estadisticas.personas_por_macrosector.items() %}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>{{ macrosector or 'Sin asignar' }}</span>
+          <span class="badge bg-info rounded-pill">{{ count }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Acciones rápidas -->
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 mb-2">
+            <a href="/personas/nueva" class="btn btn-primary w-100">
+              <i class="bi bi-person-plus"></i> Nueva Persona
+            </a>
+          </div>
+          <div class="col-md-3 mb-2">
+            <a href="/atenciones/nueva" class="btn btn-success w-100">
+              <i class="bi bi-plus-circle"></i> Nueva Atención
+            </a>
+          </div>
+          <div class="col-md-3 mb-2">
+            <a href="/reportes/busqueda-avanzada" class="btn btn-info w-100">
+              <i class="bi bi-search"></i> Búsqueda Avanzada
+            </a>
+          </div>
+          <div class="col-md-3 mb-2">
+            <a href="/reportes/estadisticas" class="btn btn-warning w-100">
+              <i class="bi bi-bar-chart"></i> Estadísticas
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
