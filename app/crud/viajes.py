@@ -6,7 +6,7 @@ from app.schemas.viajes import ViajeCreate, ViajeUpdate
 
 
 def get_viaje(db: Session, viaje_id: int):
-    return db.query(Viaje).filter(Viaje.via_id == viaje_id).first()
+    return db.query(Viaje).filter(Viaje.id == viaje_id).first()
 
 
 def get_viajes(db: Session, skip: int = 0, limit: int = 100, search: str = None):
@@ -31,7 +31,7 @@ def create_viaje(db: Session, viaje: ViajeCreate):
 
 
 def update_viaje(db: Session, viaje_id: int, viaje_update: ViajeUpdate):
-    db_viaje = db.query(Viaje).filter(Viaje.via_id == viaje_id).first()
+    db_viaje = db.query(Viaje).filter(Viaje.id == viaje_id).first()
     if db_viaje:
         update_data = viaje_update.dict(exclude_unset=True)
         for field, value in update_data.items():
@@ -42,7 +42,7 @@ def update_viaje(db: Session, viaje_id: int, viaje_update: ViajeUpdate):
 
 
 def delete_viaje(db: Session, viaje_id: int):
-    db_viaje = db.query(Viaje).filter(Viaje.via_id == viaje_id).first()
+    db_viaje = db.query(Viaje).filter(Viaje.id == viaje_id).first()
     if db_viaje:
         db.delete(db_viaje)
         db.commit()

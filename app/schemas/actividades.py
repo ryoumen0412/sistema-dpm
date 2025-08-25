@@ -1,14 +1,11 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import date
 
 
 class ActividadBase(BaseModel):
-    act_nombre: str
-    act_descripcion: Optional[str] = None
-    act_fecha: Optional[datetime] = None
-    act_lugar: Optional[str] = None
-    act_tipo: Optional[str] = None
+    act_actividad: str
+    act_fecha: date
 
 
 class ActividadCreate(ActividadBase):
@@ -16,15 +13,12 @@ class ActividadCreate(ActividadBase):
 
 
 class ActividadUpdate(BaseModel):
-    act_nombre: Optional[str] = None
-    act_descripcion: Optional[str] = None
-    act_fecha: Optional[datetime] = None
-    act_lugar: Optional[str] = None
-    act_tipo: Optional[str] = None
+    act_actividad: Optional[str] = None
+    act_fecha: Optional[date] = None
 
 
 class Actividad(ActividadBase):
-    act_id: int
+    id: int
 
     class Config:
         from_attributes = True

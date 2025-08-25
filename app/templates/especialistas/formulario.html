@@ -19,7 +19,18 @@
                 </div>
                 {% endif %}
 
-                <form method="post" action="{{ '/especialistas/' + especialista.esp_id|string + '/editar' if action == 'editar' else '/especialistas/crear' }}">
+                <form method="post" action="{{ '/especialistas/' + especialista.id|string + '/editar' if action == 'editar' else '/especialistas/crear' }}">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="esp_rut" class="form-label">RUT <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="esp_rut" name="esp_rut" 
+                                       value="{{ especialista.esp_rut if especialista else '' }}" 
+                                       placeholder="Ej: 12.345.678-9" required>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -40,40 +51,16 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="mb-3">
-                                <label for="esp_especialidad" class="form-label">Especialidad <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="esp_especialidad" name="esp_especialidad" 
-                                       value="{{ especialista.esp_especialidad if especialista else '' }}" 
-                                       placeholder="Ej: Medicina General, Kinesiología, Psicología, etc." required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="esp_telefono" class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="esp_telefono" name="esp_telefono" 
-                                       value="{{ especialista.esp_telefono if especialista else '' }}" 
-                                       placeholder="Ej: +56 9 8765 4321">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="esp_email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="esp_email" name="esp_email" 
-                                       value="{{ especialista.esp_email if especialista else '' }}" 
-                                       placeholder="correo@especialista.cl">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label for="esp_direccion" class="form-label">Dirección</label>
-                                <input type="text" class="form-control" id="esp_direccion" name="esp_direccion" 
-                                       value="{{ especialista.esp_direccion if especialista else '' }}" 
-                                       placeholder="Dirección del consultorio o clínica">
+                                <label for="esp_espeid" class="form-label">Especialidad <span class="text-danger">*</span></label>
+                                <select class="form-control" id="esp_espeid" name="esp_espeid" required>
+                                    <option value="">Seleccionar especialidad</option>
+                                    {% for especialidad in especialidades %}
+                                    <option value="{{ especialidad.id }}" 
+                                            {% if especialista and especialista.esp_espeid == especialidad.id %}selected{% endif %}>
+                                        {{ especialidad.espe_especialidad }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
                     </div>

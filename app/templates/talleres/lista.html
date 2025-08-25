@@ -45,32 +45,22 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th>Fecha Inicio</th>
-                                <th>Fecha Fin</th>
-                                <th>Lugar</th>
-                                <th>Capacidad</th>
+                                <th>Nombre del Taller</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for taller in talleres %}
                             <tr>
-                                <td>{{ taller.tal_id }}</td>
-                                <td><strong>{{ taller.tal_nombre }}</strong></td>
-                                <td>{{ taller.tal_descripcion or '-' }}</td>
-                                <td>{{ taller.tal_fecha_inicio.strftime('%d/%m/%Y') if taller.tal_fecha_inicio else '-' }}</td>
-                                <td>{{ taller.tal_fecha_fin.strftime('%d/%m/%Y') if taller.tal_fecha_fin else '-' }}</td>
-                                <td>{{ taller.tal_lugar or '-' }}</td>
-                                <td>{{ taller.tal_capacidad or '-' }}</td>
+                                <td>{{ taller.id }}</td>
+                                <td><strong>{{ taller.tal_taller }}</strong></td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="/talleres/{{ taller.tal_id }}/editar" 
+                                        <a href="/talleres/{{ taller.id }}/editar" 
                                            class="btn btn-outline-primary" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form method="post" action="/talleres/{{ taller.tal_id }}/eliminar" 
+                                        <form method="post" action="/talleres/{{ taller.id }}/eliminar" 
                                               style="display: inline;" 
                                               onsubmit="return confirm('¿Está seguro de eliminar este taller?')">
                                             <button type="submit" class="btn btn-outline-danger" title="Eliminar">

@@ -1,15 +1,12 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import date
 
 
 class ViajeBase(BaseModel):
+    via_viaje: str
     via_destino: str
-    via_fecha_salida: Optional[datetime] = None
-    via_fecha_regreso: Optional[datetime] = None
-    via_descripcion: Optional[str] = None
-    via_costo: Optional[float] = None
-    via_capacidad: Optional[int] = None
+    via_fecha: date
 
 
 class ViajeCreate(ViajeBase):
@@ -17,16 +14,13 @@ class ViajeCreate(ViajeBase):
 
 
 class ViajeUpdate(BaseModel):
+    via_viaje: Optional[str] = None
     via_destino: Optional[str] = None
-    via_fecha_salida: Optional[datetime] = None
-    via_fecha_regreso: Optional[datetime] = None
-    via_descripcion: Optional[str] = None
-    via_costo: Optional[float] = None
-    via_capacidad: Optional[int] = None
+    via_fecha: Optional[date] = None
 
 
 class Viaje(ViajeBase):
-    via_id: int
+    id: int
 
     class Config:
         from_attributes = True

@@ -99,15 +99,17 @@ class OrganizacionComunitaria(Base):
 
 class Especialista(Base):
     __tablename__ = "esp_especialistas"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    
+    id = Column(Integer, primary_key=True, index=True)
     esp_rut = Column(String(255), unique=True, nullable=False)
     esp_nombre = Column(String(255), nullable=False)
     esp_apellido = Column(String(255), nullable=False)
-    esp_espeid = Column(Integer, ForeignKey("espe_especialidades.id", ondelete="SET NULL"))
-
-    atenciones = relationship("Atencion", back_populates="especialista")
+    esp_espeid = Column(Integer, ForeignKey("espe_especialidades.id"))
+    
+    # Relationships
     especialidad = relationship("Especialidad", back_populates="especialistas")
+    atenciones = relationship("Atencion", back_populates="especialista")
+
 
 class Especialidad(Base):
     __tablename__ = "espe_especialidades"

@@ -4,10 +4,11 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from typing import Optional
 
-from app.api.deps import get_db, get_current_user
+from app.database import get_db
 from app.crud import especialistas
 from app.schemas.especialistas import EspecialistaCreate, EspecialistaUpdate
 from app.models.user import User
+from .auth import get_current_user
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -43,45 +44,50 @@ async def lista_especialistas(
 @router.get("/crear", response_class=HTMLResponse)
 async def crear_especialista_form(
     request: Request,
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Formulario para crear nuevo especialista."""
+    from app.crud import especialidades
+    especialidades_list = especialidades.get_especialidades(db, skip=0, limit=100)
+    
     return templates.TemplateResponse("especialistas/formulario.html", {
         "request": request,
         "user": current_user,
-        "action": "crear"
+        "action": "crear",
+        "especialidades": especialidades_list
     })
 
 
 @router.post("/crear")
 async def crear_especialista(
     request: Request,
+    esp_rut: str = Form(...),
     esp_nombre: str = Form(...),
     esp_apellido: str = Form(...),
-    esp_especialidad: str = Form(...),
-    esp_telefono: Optional[str] = Form(None),
-    esp_email: Optional[str] = Form(None),
-    esp_direccion: Optional[str] = Form(None),
+    esp_espeid: Optional[int] = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Crear nuevo especialista."""
     try:
         especialista_data = EspecialistaCreate(
+            esp_rut=esp_rut,
             esp_nombre=esp_nombre,
             esp_apellido=esp_apellido,
-            esp_especialidad=esp_especialidad,
-            esp_telefono=esp_telefono,
-            esp_email=esp_email,
-            esp_direccion=esp_direccion
+            esp_espeid=esp_espeid
         )
         especialistas.create_especialista(db, especialista_data)
         return RedirectResponse(url="/especialistas/", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
+        from app.crud import especialidades
+        especialidades_list = especialidades.get_especialidades(db, skip=0, limit=100)
+        
         return templates.TemplateResponse("especialistas/formulario.html", {
             "request": request,
             "user": current_user,
             "action": "crear",
+            "especialidades": especialidades_list,
             "error": f"Error al crear especialista: {str(e)}"
         })
 
@@ -98,11 +104,14 @@ async def editar_especialista_form(
     if not especialista:
         raise HTTPException(status_code=404, detail="Especialista no encontrado")
     
+    from app.crud.especialidades import get_especialidades
+    especialidades_list = get_especialidades(db)
     return templates.TemplateResponse("especialistas/formulario.html", {
         "request": request,
         "user": current_user,
         "especialista": especialista,
-        "action": "editar"
+        "action": "editar",
+        "especialidades": especialidades_list
     })
 
 
@@ -110,34 +119,33 @@ async def editar_especialista_form(
 async def editar_especialista(
     especialista_id: int,
     request: Request,
+    esp_rut: str = Form(...),
     esp_nombre: str = Form(...),
     esp_apellido: str = Form(...),
-    esp_especialidad: str = Form(...),
-    esp_telefono: Optional[str] = Form(None),
-    esp_email: Optional[str] = Form(None),
-    esp_direccion: Optional[str] = Form(None),
+    esp_espeid: Optional[int] = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Actualizar especialista."""
     try:
         especialista_update = EspecialistaUpdate(
+            esp_rut=esp_rut,
             esp_nombre=esp_nombre,
             esp_apellido=esp_apellido,
-            esp_especialidad=esp_especialidad,
-            esp_telefono=esp_telefono,
-            esp_email=esp_email,
-            esp_direccion=esp_direccion
+            esp_espeid=esp_espeid
         )
         especialistas.update_especialista(db, especialista_id, especialista_update)
         return RedirectResponse(url="/especialistas/", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         especialista = especialistas.get_especialista(db, especialista_id)
+        from app.crud.especialidades import get_especialidades
+        especialidades_list = get_especialidades(db)
         return templates.TemplateResponse("especialistas/formulario.html", {
             "request": request,
             "user": current_user,
             "especialista": especialista,
             "action": "editar",
+            "especialidades": especialidades_list,
             "error": f"Error al actualizar especialista: {str(e)}"
         })
 

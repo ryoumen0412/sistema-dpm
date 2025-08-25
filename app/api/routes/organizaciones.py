@@ -4,10 +4,11 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from typing import Optional
 
-from app.api.deps import get_db, get_current_user
+from app.database import get_db
 from app.crud import organizaciones
 from app.schemas.organizaciones import OrganizacionCreate, OrganizacionUpdate
 from app.models.user import User
+from .auth import get_current_user
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -56,25 +57,13 @@ async def crear_organizacion_form(
 @router.post("/crear")
 async def crear_organizacion(
     request: Request,
-    org_nombre: str = Form(...),
-    org_descripcion: Optional[str] = Form(None),
-    org_direccion: Optional[str] = Form(None),
-    org_telefono: Optional[str] = Form(None),
-    org_email: Optional[str] = Form(None),
-    org_tipo: Optional[str] = Form(None),
+    org_comunitaria: str = Form(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Crear nueva organización."""
     try:
-        organizacion_data = OrganizacionCreate(
-            org_nombre=org_nombre,
-            org_descripcion=org_descripcion,
-            org_direccion=org_direccion,
-            org_telefono=org_telefono,
-            org_email=org_email,
-            org_tipo=org_tipo
-        )
+        organizacion_data = OrganizacionCreate(org_comunitaria=org_comunitaria)
         organizaciones.create_organizacion(db, organizacion_data)
         return RedirectResponse(url="/organizaciones/", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
@@ -110,25 +99,13 @@ async def editar_organizacion_form(
 async def editar_organizacion(
     organizacion_id: int,
     request: Request,
-    org_nombre: str = Form(...),
-    org_descripcion: Optional[str] = Form(None),
-    org_direccion: Optional[str] = Form(None),
-    org_telefono: Optional[str] = Form(None),
-    org_email: Optional[str] = Form(None),
-    org_tipo: Optional[str] = Form(None),
+    org_comunitaria: str = Form(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Actualizar organización."""
     try:
-        organizacion_update = OrganizacionUpdate(
-            org_nombre=org_nombre,
-            org_descripcion=org_descripcion,
-            org_direccion=org_direccion,
-            org_telefono=org_telefono,
-            org_email=org_email,
-            org_tipo=org_tipo
-        )
+        organizacion_update = OrganizacionUpdate(org_comunitaria=org_comunitaria)
         organizaciones.update_organizacion(db, organizacion_id, organizacion_update)
         return RedirectResponse(url="/organizaciones/", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:

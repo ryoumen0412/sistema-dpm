@@ -19,7 +19,25 @@
                 </div>
                 {% endif %}
 
-                <form method="post" action="{{ '/viajes/' + viaje.via_id|string + '/editar' if action == 'editar' else '/viajes/crear' }}">
+                <form method="post" action="{{ '/viajes/editar/' + viaje.id|string if action == 'editar' else '/viajes/crear' }}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="via_viaje" class="form-label">Viaje <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="via_viaje" name="via_viaje" 
+                                       value="{{ viaje.via_viaje if viaje else '' }}" 
+                                       placeholder="Ej: Excursión a Valparaíso, Viaje a Termas" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="via_fecha" class="form-label">Fecha <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="via_fecha" name="via_fecha" 
+                                       value="{{ viaje.via_fecha.strftime('%Y-%m-%d') if viaje and viaje.via_fecha else '' }}" required>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="mb-3">
@@ -32,59 +50,17 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label for="via_descripcion" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="via_descripcion" name="via_descripcion" 
-                                          rows="3" placeholder="Descripción del viaje, actividades incluidas, etc.">{{ viaje.via_descripcion if viaje else '' }}</textarea>
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="/viajes/" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    {{ "Actualizar" if action == "editar" else "Crear" }} Viaje
+                                </button>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="via_fecha_salida" class="form-label">Fecha de Salida</label>
-                                <input type="date" class="form-control" id="via_fecha_salida" name="via_fecha_salida" 
-                                       value="{{ viaje.via_fecha_salida.strftime('%Y-%m-%d') if viaje and viaje.via_fecha_salida else '' }}">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="via_fecha_regreso" class="form-label">Fecha de Regreso</label>
-                                <input type="date" class="form-control" id="via_fecha_regreso" name="via_fecha_regreso" 
-                                       value="{{ viaje.via_fecha_regreso.strftime('%Y-%m-%d') if viaje and viaje.via_fecha_regreso else '' }}">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="via_capacidad" class="form-label">Capacidad</label>
-                                <input type="number" class="form-control" id="via_capacidad" name="via_capacidad" 
-                                       value="{{ viaje.via_capacidad if viaje else '' }}" 
-                                       min="1" placeholder="Número de personas">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="via_costo" class="form-label">Costo ($)</label>
-                                <input type="number" class="form-control" id="via_costo" name="via_costo" 
-                                       value="{{ viaje.via_costo if viaje else '' }}" 
-                                       min="0" step="1000" placeholder="Costo en pesos chilenos">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <a href="/viajes/" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Volver
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> 
-                            {{ "Actualizar Viaje" if action == "editar" else "Crear Viaje" }}
-                        </button>
                     </div>
                 </form>
             </div>

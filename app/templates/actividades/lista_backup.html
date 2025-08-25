@@ -1,14 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Viajes{% endblock %}
-
-{% block content %}
+{% block title %}Actividades{% en                                        <a href="/actividades/{{ act.id }}/editar" 
+                                           class="btn btn-outline-primary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" action="/actividades/eliminar/{{ act.id }}" 
+                                              style="display: inline;" 
+                                              onsubmit="return confirm('¿Está seguro de eliminar esta actividad?')">
+                                            <button type="submit" class="btn btn-outline-danger" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>{% block content %}
 <div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Gestión de Viajes</h2>
-            <a href="/viajes/crear" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Nuevo Viaje
+            <h2>Gestión de Actividades</h2>
+            <a href="/actividades/crear" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nueva Actividad
             </a>
         </div>
 
@@ -17,7 +25,7 @@
             <div class="row">
                 <div class="col-md-8">
                     <input type="text" name="search" class="form-control" 
-                           placeholder="Buscar viajes por destino o descripción..." 
+                           placeholder="Buscar actividades por nombre, descripción o tipo..." 
                            value="{{ search }}">
                 </div>
                 <div class="col-md-4">
@@ -25,7 +33,7 @@
                         <i class="fas fa-search"></i> Buscar
                     </button>
                     {% if search %}
-                    <a href="/viajes/" class="btn btn-outline-secondary">
+                    <a href="/actividades/" class="btn btn-outline-secondary">
                         <i class="fas fa-times"></i> Limpiar
                     </a>
                     {% endif %}
@@ -36,37 +44,35 @@
         <!-- Resultados -->
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Viajes registrados ({{ total }} total)</h5>
+                <h5 class="mb-0">Actividades registradas ({{ total }} total)</h5>
             </div>
             <div class="card-body">
-                {% if viajes %}
+                {% if actividades %}
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Viaje</th>
-                                <th>Destino</th>
+                                <th>Actividad</th>
                                 <th>Fecha</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for viaje in viajes %}
+                            {% for act in actividades %}
                             <tr>
-                                <td>{{ viaje.id }}</td>
-                                <td><strong>{{ viaje.via_viaje }}</strong></td>
-                                <td>{{ viaje.via_destino }}</td>
-                                <td>{{ viaje.via_fecha.strftime('%d/%m/%Y') if viaje.via_fecha else '-' }}</td>
+                                <td>{{ act.id }}</td>
+                                <td><strong>{{ act.act_actividad }}</strong></td>
+                                <td>{{ act.act_fecha.strftime('%d/%m/%Y') if act.act_fecha else '-' }}</td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="/viajes/{{ viaje.id }}/editar" 
+                                        <a href="/actividades/{{ act.id }}/editar" 
                                            class="btn btn-outline-primary" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form method="post" action="/viajes/eliminar/{{ viaje.id }}" 
+                                        <form method="post" action="/actividades/{{ act.id }}/eliminar" 
                                               style="display: inline;" 
-                                              onsubmit="return confirm('¿Está seguro de eliminar este viaje?')">
+                                              onsubmit="return confirm('¿Está seguro de eliminar esta actividad?')">
                                             <button type="submit" class="btn btn-outline-danger" title="Eliminar">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -80,17 +86,17 @@
                 </div>
                 {% else %}
                 <div class="text-center py-4">
-                    <i class="fas fa-bus fa-3x text-muted mb-3"></i>
-                    <h5>No hay viajes registrados</h5>
+                    <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                    <h5>No hay actividades registradas</h5>
                     <p class="text-muted">
                         {% if search %}
-                        No se encontraron viajes que coincidan con "{{ search }}"
+                        No se encontraron actividades que coincidan con "{{ search }}"
                         {% else %}
-                        Comience agregando un nuevo viaje
+                        Comience agregando una nueva actividad
                         {% endif %}
                     </p>
-                    <a href="/viajes/crear" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Crear primer viaje
+                    <a href="/actividades/crear" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Crear primera actividad
                     </a>
                 </div>
                 {% endif %}

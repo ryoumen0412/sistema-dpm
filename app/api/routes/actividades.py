@@ -5,10 +5,11 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
 
-from app.api.deps import get_db, get_current_user
+from app.database import get_db
 from app.crud import actividades
 from app.schemas.actividades import ActividadCreate, ActividadUpdate
 from app.models.user import User
+from .auth import get_current_user
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -37,6 +38,8 @@ async def lista_actividades(
         "total_pages": total_pages,
         "search": search,
         "total": total,
+        "limit": per_page,
+        "skip": skip,
         "user": current_user
     })
 
@@ -57,27 +60,20 @@ async def crear_actividad_form(
 @router.post("/crear")
 async def crear_actividad(
     request: Request,
-    act_nombre: str = Form(...),
-    act_descripcion: Optional[str] = Form(None),
-    act_fecha: Optional[str] = Form(None),
-    act_lugar: Optional[str] = Form(None),
-    act_tipo: Optional[str] = Form(None),
+    act_actividad: str = Form(...),
+    act_fecha: str = Form(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Crear nueva actividad."""
     try:
-        # Convert date string to datetime object
-        fecha = None
-        if act_fecha:
-            fecha = datetime.strptime(act_fecha, "%Y-%m-%d")
+        # Convert date string to date object
+        from datetime import datetime
+        fecha_obj = datetime.strptime(act_fecha, '%Y-%m-%d').date()
         
         actividad_data = ActividadCreate(
-            act_nombre=act_nombre,
-            act_descripcion=act_descripcion,
-            act_fecha=fecha,
-            act_lugar=act_lugar,
-            act_tipo=act_tipo
+            act_actividad=act_actividad,
+            act_fecha=fecha_obj
         )
         actividades.create_actividad(db, actividad_data)
         return RedirectResponse(url="/actividades/", status_code=status.HTTP_303_SEE_OTHER)
@@ -110,42 +106,34 @@ async def editar_actividad_form(
     })
 
 
-@router.post("/{actividad_id}/editar")
+@router.post("/editar/{actividad_id}")
 async def editar_actividad(
     actividad_id: int,
     request: Request,
-    act_nombre: str = Form(...),
-    act_descripcion: Optional[str] = Form(None),
-    act_fecha: Optional[str] = Form(None),
-    act_lugar: Optional[str] = Form(None),
-    act_tipo: Optional[str] = Form(None),
+    act_actividad: str = Form(...),
+    act_fecha: str = Form(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Actualizar actividad."""
+    """Editar actividad existente."""
     try:
-        # Convert date string to datetime object
-        fecha = None
-        if act_fecha:
-            fecha = datetime.strptime(act_fecha, "%Y-%m-%d")
+        # Convert date string to date object
+        from datetime import datetime
+        fecha_obj = datetime.strptime(act_fecha, '%Y-%m-%d').date()
         
-        actividad_update = ActividadUpdate(
-            act_nombre=act_nombre,
-            act_descripcion=act_descripcion,
-            act_fecha=fecha,
-            act_lugar=act_lugar,
-            act_tipo=act_tipo
+        actividad_data = ActividadUpdate(
+            act_actividad=act_actividad,
+            act_fecha=fecha_obj
         )
-        actividades.update_actividad(db, actividad_id, actividad_update)
+        actividades.update_actividad(db, actividad_id, actividad_data)
         return RedirectResponse(url="/actividades/", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
-        actividad = actividades.get_actividad(db, actividad_id)
         return templates.TemplateResponse("actividades/formulario.html", {
             "request": request,
             "user": current_user,
-            "actividad": actividad,
             "action": "editar",
-            "error": f"Error al actualizar actividad: {str(e)}"
+            "actividad_id": actividad_id,
+            "error": f"Error al editar actividad: {str(e)}"
         })
 
 

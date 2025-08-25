@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
-from .api.routes import auth, personas_mayores, atenciones, reportes, talleres, organizaciones, especialistas, actividades, viajes
+from .api.routes import auth, personas_mayores, atenciones, reportes, talleres, organizaciones, especialistas, especialidades, actividades, viajes
 from .api.routes.auth import get_current_user
 from .crud import personas_mayores as crud_pm
 from .models.personas_mayores import PersonaMayor, Atencion
@@ -53,6 +53,7 @@ app.include_router(reportes.router)
 app.include_router(talleres.router, prefix="/talleres")
 app.include_router(organizaciones.router, prefix="/organizaciones")
 app.include_router(especialistas.router, prefix="/especialistas")
+app.include_router(especialidades.router, prefix="/especialidades")
 app.include_router(actividades.router, prefix="/actividades")
 app.include_router(viajes.router, prefix="/viajes")
 

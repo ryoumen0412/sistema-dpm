@@ -5,10 +5,11 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
 
-from app.api.deps import get_db, get_current_user
+from app.database import get_db
 from app.crud import viajes
 from app.schemas.viajes import ViajeCreate, ViajeUpdate
 from app.models.user import User
+from .auth import get_current_user
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -57,33 +58,22 @@ async def crear_viaje_form(
 @router.post("/crear")
 async def crear_viaje(
     request: Request,
+    via_viaje: str = Form(...),
     via_destino: str = Form(...),
-    via_fecha_salida: Optional[str] = Form(None),
-    via_fecha_regreso: Optional[str] = Form(None),
-    via_descripcion: Optional[str] = Form(None),
-    via_costo: Optional[float] = Form(None),
-    via_capacidad: Optional[int] = Form(None),
+    via_fecha: str = Form(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Crear nuevo viaje."""
     try:
-        # Convert date strings to datetime objects
-        fecha_salida = None
-        fecha_regreso = None
-        
-        if via_fecha_salida:
-            fecha_salida = datetime.strptime(via_fecha_salida, "%Y-%m-%d")
-        if via_fecha_regreso:
-            fecha_regreso = datetime.strptime(via_fecha_regreso, "%Y-%m-%d")
+        # Convert date string to date object
+        from datetime import datetime
+        fecha_obj = datetime.strptime(via_fecha, '%Y-%m-%d').date()
         
         viaje_data = ViajeCreate(
+            via_viaje=via_viaje,
             via_destino=via_destino,
-            via_fecha_salida=fecha_salida,
-            via_fecha_regreso=fecha_regreso,
-            via_descripcion=via_descripcion,
-            via_costo=via_costo,
-            via_capacidad=via_capacidad
+            via_fecha=fecha_obj
         )
         viajes.create_viaje(db, viaje_data)
         return RedirectResponse(url="/viajes/", status_code=status.HTTP_303_SEE_OTHER)
@@ -116,48 +106,36 @@ async def editar_viaje_form(
     })
 
 
-@router.post("/{viaje_id}/editar")
+@router.post("/editar/{viaje_id}")
 async def editar_viaje(
     viaje_id: int,
     request: Request,
+    via_viaje: str = Form(...),
     via_destino: str = Form(...),
-    via_fecha_salida: Optional[str] = Form(None),
-    via_fecha_regreso: Optional[str] = Form(None),
-    via_descripcion: Optional[str] = Form(None),
-    via_costo: Optional[float] = Form(None),
-    via_capacidad: Optional[int] = Form(None),
+    via_fecha: str = Form(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Actualizar viaje."""
+    """Editar viaje existente."""
     try:
-        # Convert date strings to datetime objects
-        fecha_salida = None
-        fecha_regreso = None
+        # Convert date string to date object
+        from datetime import datetime
+        fecha_obj = datetime.strptime(via_fecha, '%Y-%m-%d').date()
         
-        if via_fecha_salida:
-            fecha_salida = datetime.strptime(via_fecha_salida, "%Y-%m-%d")
-        if via_fecha_regreso:
-            fecha_regreso = datetime.strptime(via_fecha_regreso, "%Y-%m-%d")
-        
-        viaje_update = ViajeUpdate(
+        viaje_data = ViajeUpdate(
+            via_viaje=via_viaje,
             via_destino=via_destino,
-            via_fecha_salida=fecha_salida,
-            via_fecha_regreso=fecha_regreso,
-            via_descripcion=via_descripcion,
-            via_costo=via_costo,
-            via_capacidad=via_capacidad
+            via_fecha=fecha_obj
         )
-        viajes.update_viaje(db, viaje_id, viaje_update)
+        viajes.update_viaje(db, viaje_id, viaje_data)
         return RedirectResponse(url="/viajes/", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
-        viaje = viajes.get_viaje(db, viaje_id)
         return templates.TemplateResponse("viajes/formulario.html", {
             "request": request,
             "user": current_user,
-            "viaje": viaje,
             "action": "editar",
-            "error": f"Error al actualizar viaje: {str(e)}"
+            "viaje_id": viaje_id,
+            "error": f"Error al editar viaje: {str(e)}"
         })
 
 

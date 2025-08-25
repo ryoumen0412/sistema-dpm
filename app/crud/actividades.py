@@ -6,7 +6,7 @@ from app.schemas.actividades import ActividadCreate, ActividadUpdate
 
 
 def get_actividad(db: Session, actividad_id: int):
-    return db.query(Actividad).filter(Actividad.act_id == actividad_id).first()
+    return db.query(Actividad).filter(Actividad.id == actividad_id).first()
 
 
 def get_actividades(db: Session, skip: int = 0, limit: int = 100, search: str = None):
@@ -14,11 +14,7 @@ def get_actividades(db: Session, skip: int = 0, limit: int = 100, search: str = 
     if search:
         search_term = f"%{search}%"
         query = query.filter(
-            or_(
-                Actividad.act_nombre.ilike(search_term),
-                Actividad.act_descripcion.ilike(search_term),
-                Actividad.act_tipo.ilike(search_term)
-            )
+            Actividad.act_actividad.ilike(search_term)
         )
     return query.offset(skip).limit(limit).all()
 
@@ -32,7 +28,7 @@ def create_actividad(db: Session, actividad: ActividadCreate):
 
 
 def update_actividad(db: Session, actividad_id: int, actividad_update: ActividadUpdate):
-    db_actividad = db.query(Actividad).filter(Actividad.act_id == actividad_id).first()
+    db_actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
     if db_actividad:
         update_data = actividad_update.dict(exclude_unset=True)
         for field, value in update_data.items():
@@ -43,7 +39,7 @@ def update_actividad(db: Session, actividad_id: int, actividad_update: Actividad
 
 
 def delete_actividad(db: Session, actividad_id: int):
-    db_actividad = db.query(Actividad).filter(Actividad.act_id == actividad_id).first()
+    db_actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
     if db_actividad:
         db.delete(db_actividad)
         db.commit()
@@ -55,10 +51,6 @@ def count_actividades(db: Session, search: str = None):
     if search:
         search_term = f"%{search}%"
         query = query.filter(
-            or_(
-                Actividad.act_nombre.ilike(search_term),
-                Actividad.act_descripcion.ilike(search_term),
-                Actividad.act_tipo.ilike(search_term)
-            )
+            Actividad.act_actividad.ilike(search_term)
         )
     return query.count()

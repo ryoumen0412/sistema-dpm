@@ -5,10 +5,11 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
 
-from app.api.deps import get_db, get_current_user
+from app.database import get_db
 from app.crud import talleres
 from app.schemas.talleres import TallerCreate, TallerUpdate
 from app.models.user import User
+from .auth import get_current_user
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -57,34 +58,13 @@ async def crear_taller_form(
 @router.post("/crear")
 async def crear_taller(
     request: Request,
-    tal_nombre: str = Form(...),
-    tal_descripcion: Optional[str] = Form(None),
-    tal_fecha_inicio: Optional[str] = Form(None),
-    tal_fecha_fin: Optional[str] = Form(None),
-    tal_lugar: Optional[str] = Form(None),
-    tal_capacidad: Optional[int] = Form(None),
+    tal_taller: str = Form(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Crear nuevo taller."""
     try:
-        # Convert date strings to datetime objects
-        fecha_inicio = None
-        fecha_fin = None
-        
-        if tal_fecha_inicio:
-            fecha_inicio = datetime.strptime(tal_fecha_inicio, "%Y-%m-%d")
-        if tal_fecha_fin:
-            fecha_fin = datetime.strptime(tal_fecha_fin, "%Y-%m-%d")
-        
-        taller_data = TallerCreate(
-            tal_nombre=tal_nombre,
-            tal_descripcion=tal_descripcion,
-            tal_fecha_inicio=fecha_inicio,
-            tal_fecha_fin=fecha_fin,
-            tal_lugar=tal_lugar,
-            tal_capacidad=tal_capacidad
-        )
+        taller_data = TallerCreate(tal_taller=tal_taller)
         talleres.create_taller(db, taller_data)
         return RedirectResponse(url="/talleres/", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
@@ -120,34 +100,13 @@ async def editar_taller_form(
 async def editar_taller(
     taller_id: int,
     request: Request,
-    tal_nombre: str = Form(...),
-    tal_descripcion: Optional[str] = Form(None),
-    tal_fecha_inicio: Optional[str] = Form(None),
-    tal_fecha_fin: Optional[str] = Form(None),
-    tal_lugar: Optional[str] = Form(None),
-    tal_capacidad: Optional[int] = Form(None),
+    tal_taller: str = Form(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Actualizar taller."""
     try:
-        # Convert date strings to datetime objects
-        fecha_inicio = None
-        fecha_fin = None
-        
-        if tal_fecha_inicio:
-            fecha_inicio = datetime.strptime(tal_fecha_inicio, "%Y-%m-%d")
-        if tal_fecha_fin:
-            fecha_fin = datetime.strptime(tal_fecha_fin, "%Y-%m-%d")
-        
-        taller_update = TallerUpdate(
-            tal_nombre=tal_nombre,
-            tal_descripcion=tal_descripcion,
-            tal_fecha_inicio=fecha_inicio,
-            tal_fecha_fin=fecha_fin,
-            tal_lugar=tal_lugar,
-            tal_capacidad=tal_capacidad
-        )
+        taller_update = TallerUpdate(tal_taller=tal_taller)
         talleres.update_taller(db, taller_id, taller_update)
         return RedirectResponse(url="/talleres/", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:

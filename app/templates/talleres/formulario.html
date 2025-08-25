@@ -19,59 +19,14 @@
                 </div>
                 {% endif %}
 
-                <form method="post" action="{{ '/talleres/' + taller.tal_id|string + '/editar' if action == 'editar' else '/talleres/crear' }}">
+                <form method="post" action="{{ '/talleres/' + taller.id|string + '/editar' if action == 'editar' else '/talleres/crear' }}">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="mb-3">
-                                <label for="tal_nombre" class="form-label">Nombre del Taller <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="tal_nombre" name="tal_nombre" 
-                                       value="{{ taller.tal_nombre if taller else '' }}" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label for="tal_descripcion" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="tal_descripcion" name="tal_descripcion" 
-                                          rows="3">{{ taller.tal_descripcion if taller else '' }}</textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="tal_fecha_inicio" class="form-label">Fecha de Inicio</label>
-                                <input type="date" class="form-control" id="tal_fecha_inicio" name="tal_fecha_inicio" 
-                                       value="{{ taller.tal_fecha_inicio.strftime('%Y-%m-%d') if taller and taller.tal_fecha_inicio else '' }}">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="tal_fecha_fin" class="form-label">Fecha de Fin</label>
-                                <input type="date" class="form-control" id="tal_fecha_fin" name="tal_fecha_fin" 
-                                       value="{{ taller.tal_fecha_fin.strftime('%Y-%m-%d') if taller and taller.tal_fecha_fin else '' }}">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="mb-3">
-                                <label for="tal_lugar" class="form-label">Lugar</label>
-                                <input type="text" class="form-control" id="tal_lugar" name="tal_lugar" 
-                                       value="{{ taller.tal_lugar if taller else '' }}" 
-                                       placeholder="Ej: Centro Comunitario, Sede Municipal, etc.">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="tal_capacidad" class="form-label">Capacidad</label>
-                                <input type="number" class="form-control" id="tal_capacidad" name="tal_capacidad" 
-                                       value="{{ taller.tal_capacidad if taller else '' }}" 
-                                       min="1" placeholder="Ej: 20">
+                                <label for="tal_taller" class="form-label">Nombre del Taller <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="tal_taller" name="tal_taller" 
+                                       value="{{ taller.tal_taller if taller else '' }}" 
+                                       placeholder="Ej: Taller de Manualidades, Taller de Cocina, etc." required>
                             </div>
                         </div>
                     </div>

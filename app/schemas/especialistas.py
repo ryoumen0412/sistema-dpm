@@ -3,12 +3,10 @@ from typing import Optional
 
 
 class EspecialistaBase(BaseModel):
+    esp_rut: str
     esp_nombre: str
     esp_apellido: str
-    esp_especialidad: str
-    esp_telefono: Optional[str] = None
-    esp_email: Optional[str] = None
-    esp_direccion: Optional[str] = None
+    esp_espeid: Optional[int] = None
 
 
 class EspecialistaCreate(EspecialistaBase):
@@ -16,16 +14,30 @@ class EspecialistaCreate(EspecialistaBase):
 
 
 class EspecialistaUpdate(BaseModel):
+    esp_rut: Optional[str] = None
     esp_nombre: Optional[str] = None
     esp_apellido: Optional[str] = None
-    esp_especialidad: Optional[str] = None
-    esp_telefono: Optional[str] = None
-    esp_email: Optional[str] = None
-    esp_direccion: Optional[str] = None
+    esp_espeid: Optional[int] = None
 
 
 class Especialista(EspecialistaBase):
-    esp_id: int
+    id: int
+    especialidad: Optional[dict] = None
+
+    class Config:
+        from_attributes = True
+
+
+class EspecialidadBase(BaseModel):
+    espe_especialidad: str
+
+
+class EspecialidadCreate(EspecialidadBase):
+    pass
+
+
+class Especialidad(EspecialidadBase):
+    id: int
 
     class Config:
         from_attributes = True
